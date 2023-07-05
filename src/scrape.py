@@ -44,5 +44,6 @@ def main():
         english = x[0]
         japanese = x[1]
 
+
 if __name__ == "__main__":
     main()
