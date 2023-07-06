@@ -1,0 +1,19 @@
+#:kivy 2.2.1
+
+<Keyboard>:
+    BoxLayout:
+        orientation: "vertical"
+        size: root.size
+        pos: root.pos
+        canvas.before:
+            Color:
+                rgba: 0.07, 0.5, 0.3, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        Label:
+            text: root.input_text
+            font_size: 20
+        Button:
+            text: "hello"
