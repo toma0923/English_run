@@ -1,3 +1,4 @@
+import random
 from kivy.app import App, Widget
 from kivy.core.window import Window
 from kivy.properties import StringProperty
@@ -35,8 +36,32 @@ class Keyboard(Widget):
         # print(self.input_text)
 
 
+class Quiz:
+    def __init__(self):
+        """
+        英単語をファイルから読み込む
+        """
+        with open("words.txt", "r") as f:
+            self.raw_problems = f.readlines()
+            self.raw_problems = [x.strip() for x in self.raw_problems]
+
+        self.problems = []
+        for p in self.raw_problems:
+            x = p.split(",")
+            self.problems.append(x)
+
+    def random_pick_problems(self, required: int):
+        """
+        問題となる英単語をランダムで複数ピックアップする
+        """
+        self.random_problems = random.sample(self.problems, required)
+        print(self.random_problems)
+
+
 class TypingApp(App):
     def build(self):
+        quiz = Quiz()
+        quiz.random_pick_problems(10)
         return Keyboard()
 
 
