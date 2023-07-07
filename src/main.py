@@ -9,7 +9,7 @@ class Keyboard(Widget):
     キーボードからの入力を受け取る
     """
 
-    input_text = StringProperty("aaa")
+    input_text = StringProperty("")
 
     def __init__(self, **kwargs):
         super(Keyboard, self).__init__(**kwargs)
@@ -26,8 +26,8 @@ class Keyboard(Widget):
         if keycode[0] == 8:
             # バックスペース
             self.input_text = self.input_text[:-1]
-        elif len(self.input_text) < 20:
-            self.input_text += text
+        elif len(self.input_text) < 30:
+            self.input_text += text + " "
 
         # print(f"The key {keycode} has been pressed")
         # print(f" - text is {text}")
