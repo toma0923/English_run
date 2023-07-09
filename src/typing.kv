@@ -1,6 +1,6 @@
 #:kivy 2.2.1
 
-<Keyboard>:
+<MainLayout>:
     BoxLayout:
         orientation: "vertical"
         size: root.size
@@ -19,17 +19,25 @@
             BoxLayout:
                 orientation: "vertical"
                 size_hint: 0.6, 0.6
-                Label:
+
+                line: under_line
+                Button:
+                    id: question
+                    text: "hello"
+                    size_hint_y: 2
+                    font_size: 40
+                Button:
+                    id: displayed_text
                     text: root.input_text
                     # テキストをLabelのやや左寄せにする
-                    text_size: self.size[0] / 2, self.size[1]
+                    text_size: None, self.size[1]
                     halign: "left"
                     valign: "bottom"
-                    font_size: 20
-                Label:
-                    text: "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _"
-                    text_size: self.size[0] / 2, self.size[1]
-                    halign: "left"
+                    font_size: 22
+                Button:
+                    id: under_line
+                    text_size: len(text) * 15, self.size[1] * 2
+                    halign: "center"
                     valign: "top"
                     # アンダーバーとテキストの位置を合わせるため
                     font_size: 23.5
