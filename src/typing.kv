@@ -7,7 +7,7 @@
         pos: root.pos
         canvas.before:
             Color:
-                rgba: 0.07, 0.5, 0.3, 1
+                rgba: 1, 1, 0.3, 1
             Rectangle:
                 pos: self.pos
                 size: self.size
@@ -20,29 +20,24 @@
                 orientation: "vertical"
                 size_hint: 0.6, 0.6
 
-                line: under_line
                 Button:
                     id: question
                     text: "hello"
                     size_hint_y: 2
                     font_size: 40
                 Button:
-                    id: displayed_text
-                    text: root.input_text
-                    # テキストをLabelのやや左寄せにする
-                    text_size: None, self.size[1]
-                    halign: "left"
-                    valign: "bottom"
-                    font_size: 22
-                Button:
-                    id: under_line
-                    text_size: len(text) * 15, self.size[1] * 2
-                    halign: "center"
-                    valign: "top"
-                    # アンダーバーとテキストの位置を合わせるため
-                    font_size: 23.5
+                    text: root.shown_text
+                    font_size: 30
 
-        BoxLayout:
-            orientation: "horizontal"
-            Button:
-                text: "a"
+        FloatLayout:
+            Image:
+                canvas:
+                    Rectangle:
+                        source: "img/background.jpg"
+                        size: self.size
+            
+            Image:
+                source: "img/hashiru_boy.png"
+                size_hint: None, None
+                size: self.texture_size[0] * 0.2, self.texture_size[1] * 0.2
+                pos_hint: {"x": .38, "y": .2}
