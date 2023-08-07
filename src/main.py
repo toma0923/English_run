@@ -1,8 +1,11 @@
 import random
 import japanize_kivy
 from kivy.app import App, Widget
+from kivy.core.image import Image
 from kivy.core.window import Window
-from kivy.properties import StringProperty
+from kivy.clock import Clock
+from kivy.animation import Animation
+from kivy.properties import StringProperty, ObjectProperty
 
 
 class MainLayout(Widget):
@@ -35,19 +38,22 @@ class MainLayout(Widget):
             self.change_shown_text()
 
         elif keycode[0] == 13:
-            # Enterが押されたとき、入力が正しければ正解処理に進む
-            if self.quiz.check_input(self.shown_text):
+            # Enterが押されたとき、入力が正しければスピードを上げ正解処理に進む
+            if self.quiz.check_input(self.input_text):
+                self.quiz.speed *= 1.7
                 self.switch_shown_problem()
-            self.switch_shown_problem() # 現在不正解でも次の問題へ
+            # 不正解ならスピードダウン
+            else:
+                self.quiz.speed *= 0.6
 
         elif text != None:
             # 文字数制限以下なら文字を追加
             if len(self.input_text) < self.len_current_problem:
                 self.change_shown_text(add_text=text)
 
-        print(f"The key {keycode} has been pressed")
-        print(f" - text is {text}")
-        print(' - modifiers are %r' % modifiers)
+        # print(f"The key {keycode} has been pressed")
+        # print(f" - text is {text}")
+        # print(' - modifiers are %r' % modifiers)
 
     def switch_shown_problem(self):
         """
@@ -68,6 +74,22 @@ class MainLayout(Widget):
         self.input_text += add_text
         self.shown_text = " ".join(self.input_text + self.underline[len(self.input_text):])
 
+    def update(self, dt):
+        self.ids.bg1.move(self.quiz.speed)
+        self.ids.bg2.move(self.quiz.speed)
+        self.ids.bg3.move(self.quiz.speed)
+
+
+class Background(Widget):
+    def move(self, speed):
+        """
+        背景画像を横に動かす
+        """
+        self.x -= speed
+        # print(self.pos)
+        if self.x <= -self.width / 1.2:
+            self.x = self.width / 1.1
+
 
 class Quiz:
     def __init__(self):
@@ -84,6 +106,13 @@ class Quiz:
             self.problems.append(x)
         
         self.random_pick_problems(10)
+        self.init_game_stat()
+
+    def init_game_stat(self):
+        """
+        ゲーム内のステータスを初期化する
+        """
+        self.speed = 0.5
 
     def random_pick_problems(self, required: int):
         """
@@ -102,6 +131,7 @@ class Quiz:
         """
         入力が正解かどうか判定する
         """
+        print(input, self.current[0])
         if input == self.current[0]:
             return True
         else:
@@ -110,7 +140,9 @@ class Quiz:
 
 class TypingApp(App):
     def build(self):
-        return MainLayout()
+        main = MainLayout()
+        Clock.schedule_interval(main.update, 1.0 / 60.0)
+        return main
 
 
 if __name__ == "__main__":
