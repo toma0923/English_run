@@ -1,5 +1,11 @@
 #:kivy 2.2.1
 
+<Background>:
+    Image:
+        source: "img/background.jpg"
+        pos: root.pos
+        size: root.size
+
 <MainLayout>:
     BoxLayout:
         orientation: "vertical"
@@ -30,11 +36,15 @@
                     font_size: 30
 
         FloatLayout:
-            Image:
-                canvas:
-                    Rectangle:
-                        source: "img/background.jpg"
-                        size: self.size
+            Background:
+                id: bg1
+                pos: -self.width / 6, 0
+            Background:
+                id: bg2
+                pos: self.width / 2.1, 0
+            Background:
+                id: bg3
+                pos: self.width, 0
             
             Image:
                 source: "img/hashiru_boy.png"
