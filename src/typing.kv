@@ -45,6 +45,10 @@
             Background:
                 id: bg3
                 pos: self.width, 0
+            Label:
+                font_size: 30
+                pos_hint: {"x": -0.45, "y": 0.4}
+                text: str(int(root.limit_timer))
             
             Image:
                 source: "img/hashiru_boy.png"
