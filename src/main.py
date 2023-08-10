@@ -5,7 +5,7 @@ from kivy.core.image import Image
 from kivy.core.window import Window
 from kivy.clock import Clock
 from kivy.animation import Animation
-from kivy.properties import StringProperty, ObjectProperty
+from kivy.properties import StringProperty, ObjectProperty, NumericProperty
 
 
 class MainLayout(Widget):
@@ -15,6 +15,7 @@ class MainLayout(Widget):
     """
 
     shown_text = StringProperty("")
+    limit_timer = NumericProperty(60)
 
     def __init__(self, **kwargs):
         super(MainLayout, self).__init__(**kwargs)
@@ -40,7 +41,7 @@ class MainLayout(Widget):
         elif keycode[0] == 13:
             # Enterが押されたとき、入力が正しければスピードを上げ正解処理に進む
             if self.quiz.check_input(self.input_text):
-                self.quiz.speed *= 1.7
+                self.quiz.speed *= 1.2
                 self.switch_shown_problem()
             # 不正解ならスピードダウン
             else:
@@ -78,6 +79,8 @@ class MainLayout(Widget):
         self.ids.bg1.move(self.quiz.speed)
         self.ids.bg2.move(self.quiz.speed)
         self.ids.bg3.move(self.quiz.speed)
+
+        self.limit_timer -= 1 / 80
 
 
 class Background(Widget):
