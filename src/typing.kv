@@ -1,4 +1,29 @@
 #:kivy 2.2.1
+#:import SlideTransition kivy.uix.screenmanager.SlideTransition
+
+ScreenManagement:
+    MenuScreen:
+    MainLayout:
+
+
+<MenuScreen>:
+    name: "menu"
+    canvas.before:
+        Color:
+            rgba: 0.0, 0.1, 0.2, 1
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    AnchorLayout:
+        Button:
+            font_size: 30
+            size_hint: 0.3, 0.15
+            text: "start"
+            on_release:
+                root.manager.transition = SlideTransition(direction="left")
+                root.manager.current = "main"
+
 
 <Background>:
     Image:
@@ -7,6 +32,7 @@
         size: root.size
 
 <MainLayout>:
+    name: "main"
     BoxLayout:
         orientation: "vertical"
         size: root.size
@@ -49,6 +75,14 @@
                 font_size: 30
                 pos_hint: {"x": -0.45, "y": 0.4}
                 text: str(int(root.limit_timer))
+            Button:
+                background_color: 0, 0.4, 0.7, 0.9
+                pos_hint: {"x": 0.88, "y": 0.86}
+                size_hint: 0.1, 0.1
+                text: "Menu" 
+                on_release:
+                    root.manager.transition = SlideTransition(direction="right")
+                    root.manager.current = "menu"      
             
             Image:
                 source: "img/hashiru_boy.png"

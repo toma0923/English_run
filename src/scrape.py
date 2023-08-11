@@ -24,6 +24,8 @@ def save_problems():
 
         if a[0] == '\u3000':
             continue
+        if " " in a[1]:  # 一単語のもの以外は削除
+            continue
         splited_list.append(a)
 
     with open("words.txt", "w") as f:
@@ -32,6 +34,8 @@ def save_problems():
 
 
 def main():
+    save_problems()
+
     with open("words.txt", "r") as f:
         problems = f.readlines()
         problems = [x.strip() for x in problems]
@@ -39,10 +43,11 @@ def main():
 
     for p in problems:
         x = p.split(",")
-        print(x)
 
         english = x[0]
         japanese = x[1]
+
+        print(x)
 
 
 if __name__ == "__main__":
