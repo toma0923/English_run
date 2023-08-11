@@ -1,14 +1,26 @@
 import random
 import japanize_kivy
 from kivy.app import App, Widget
+from kivy.lang import Builder
 from kivy.core.image import Image
 from kivy.core.window import Window
 from kivy.clock import Clock
-from kivy.animation import Animation
+from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.properties import StringProperty, ObjectProperty, NumericProperty
 
 
-class MainLayout(Widget):
+class ScreenManagement(ScreenManager):
+    pass
+
+
+class MenuScreen(Screen):
+    """
+    メニュー画面
+    """
+    pass
+
+
+class MainLayout(Screen):
     """
     メインレイアウト
     キーボードからの入力を受け取る
@@ -23,8 +35,19 @@ class MainLayout(Widget):
             self._keyboard_closed, self, 'text')
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
 
+        Clock.schedule_interval(self.update, 1.0 / 60.0)
+        Clock.schedule_once(self.after_init)
+
         self.quiz = Quiz()
         self.input_text = ""
+    
+    def after_init(self, *largs):
+        """
+        インスタンス作成から一瞬待つことでidsを取得できた
+        """
+        app = App.get_running_app()
+        self.ids = app.root.get_screen("main").ids
+
         self.switch_shown_problem()
 
     def _keyboard_closed(self):
@@ -134,19 +157,18 @@ class Quiz:
         """
         入力が正解かどうか判定する
         """
-        print(input, self.current[0])
+        # print(input, self.current[0])
         if input == self.current[0]:
             return True
         else:
             return False
 
 
-class TypingApp(App):
+class App(App):
     def build(self):
-        main = MainLayout()
-        Clock.schedule_interval(main.update, 1.0 / 60.0)
-        return main
+        GUI = Builder.load_file("typing.kv")
+        return GUI
 
 
 if __name__ == "__main__":
-    TypingApp().run()
+    App().run()
