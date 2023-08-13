@@ -5,7 +5,9 @@ from kivy.lang import Builder
 from kivy.core.image import Image
 from kivy.core.window import Window
 from kivy.clock import Clock
-from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.label import Label
+from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition
+from kivy.graphics import Color, Rectangle
 from kivy.properties import StringProperty, ObjectProperty, NumericProperty
 
 
@@ -17,7 +19,48 @@ class MenuScreen(Screen):
     """
     メニュー画面
     """
-    pass
+    # 入力された出題単語数を受け取る変数
+    question_nums = 30
+
+    def on_press_start(self):
+        # 指定された出題単語数に応じて問題をピックアップする
+        if self.input.text != "":
+            self.question_nums = int(self.input.text)
+        main_screen = self.manager.get_screen("main")
+        problems = main_screen.quiz.random_pick_problems(self.question_nums)
+        
+        check_screen = self.manager.get_screen("check")
+        check_screen.show_all_problems(problems)
+
+        self.manager.transition = SlideTransition(direction="left")
+        self.manager.current = "check"
+
+
+class ForCheckScreen(Screen):
+    """
+    出題英単語を確認するための画面
+    """
+    def show_all_problems(self, problems):
+        for p in problems:
+            english_label = ScrollLabel(text=p[0])
+            japanese_label = ScrollLabel(text=p[1])
+
+            self.scroll.add_widget(english_label)
+            self.scroll.add_widget(japanese_label)
+
+    def on_press_start(self):
+        self.manager.get_screen("main").switch_shown_problem()
+
+        self.manager.transition = SlideTransition(direction="left")
+        self.manager.current = "main"   
+
+
+class ScrollLabel(Label):
+    bg_color = (245/255, 239/255, 61/255, 1)
+    color = (0, 0, 0, 1)
+    font_size = 30
+    def __init__(self, **kwargs):
+        super(ScrollLabel, self).__init__(**kwargs)
 
 
 class MainLayout(Screen):
@@ -36,19 +79,9 @@ class MainLayout(Screen):
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
 
         Clock.schedule_interval(self.update, 1.0 / 60.0)
-        Clock.schedule_once(self.after_init)
 
         self.quiz = Quiz()
         self.input_text = ""
-    
-    def after_init(self, *largs):
-        """
-        インスタンス作成から一瞬待つことでidsを取得できた
-        """
-        app = App.get_running_app()
-        self.ids = app.root.get_screen("main").ids
-
-        self.switch_shown_problem()
 
     def _keyboard_closed(self):
         print('My keyboard have been closed!')
@@ -56,6 +89,9 @@ class MainLayout(Screen):
         self._keyboard = None
 
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
+        if self.manager.current != "main":
+            return
+
         if keycode[0] == 8:
             # バックスペース
             self.input_text = self.input_text[:-1]
@@ -103,7 +139,8 @@ class MainLayout(Screen):
         self.ids.bg2.move(self.quiz.speed)
         self.ids.bg3.move(self.quiz.speed)
 
-        self.limit_timer -= 1 / 80
+        if self.manager.current == "main":
+            self.limit_timer -= 1 / 80
 
 
 class Background(Widget):
@@ -131,7 +168,6 @@ class Quiz:
             x = p.split(",")
             self.problems.append(x)
         
-        self.random_pick_problems(10)
         self.init_game_stat()
 
     def init_game_stat(self):
@@ -146,6 +182,7 @@ class Quiz:
         """
         self.random_problems = random.sample(self.problems, required)
         print(self.random_problems)
+        return self.random_problems
 
     def next_problem(self):
         """
