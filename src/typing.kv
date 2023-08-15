@@ -119,16 +119,32 @@ ScreenManagement:
                 pos: self.width, 0
             Label:
                 font_size: 30
-                pos_hint: {"x": -0.45, "y": 0.4}
-                text: str(int(root.limit_timer))
+                text_size: self.size
+                halign: "left"
+                color: 0, 0, 0, 1
+                pos_hint: {"x": 0, "y": 0.9}
+                text: "timer: " + str(int(root.limit_timer))
+            Label:
+                font_size: 30
+                text_size: self.size
+                halign: "left"
+                color: 0, 0, 0, 1
+                pos_hint: {"x": 0, "y": 0.8}
+                text: "score: " + str(int(root.score))
+            Label:
+                font_size: 25
+                text_size: self.size
+                halign: "left"
+                color: 0, 0, 0, 1
+                pos_hint: {"x": 0, "y": 0.7}
+                text: "時速" + str(int(root.speed * 10)) + "km"
             Button:
                 background_color: 0, 0.4, 0.7, 0.9
                 pos_hint: {"x": 0.88, "y": 0.86}
                 size_hint: 0.1, 0.1
                 text: "Menu" 
                 on_release:
-                    root.manager.transition = SlideTransition(direction="right")
-                    root.manager.current = "menu"      
+                    root.on_press_menu()
             
             Image:
                 source: "img/hashiru_boy.png"

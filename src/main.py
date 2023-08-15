@@ -71,6 +71,8 @@ class MainLayout(Screen):
 
     shown_text = StringProperty("")
     limit_timer = NumericProperty(60)
+    score = NumericProperty(0)
+    speed = NumericProperty(0.5)
 
     def __init__(self, **kwargs):
         super(MainLayout, self).__init__(**kwargs)
@@ -100,11 +102,11 @@ class MainLayout(Screen):
         elif keycode[0] == 13:
             # Enterが押されたとき、入力が正しければスピードを上げ正解処理に進む
             if self.quiz.check_input(self.input_text):
-                self.quiz.speed *= 1.2
+                self.speed *= 1.2
                 self.switch_shown_problem()
             # 不正解ならスピードダウン
             else:
-                self.quiz.speed *= 0.6
+                self.speed *= 0.8
 
         elif text != None:
             # 文字数制限以下なら文字を追加
@@ -135,12 +137,20 @@ class MainLayout(Screen):
         self.shown_text = " ".join(self.input_text + self.underline[len(self.input_text):])
 
     def update(self, dt):
-        self.ids.bg1.move(self.quiz.speed)
-        self.ids.bg2.move(self.quiz.speed)
-        self.ids.bg3.move(self.quiz.speed)
+        self.ids.bg1.move(self.speed)
+        self.ids.bg2.move(self.speed)
+        self.ids.bg3.move(self.speed)
 
         if self.manager.current == "main":
             self.limit_timer -= 1 / 80
+            self.score += self.speed / 20
+
+    def on_press_menu(self):
+        self.score = 0
+        self.limit_timer = 60
+
+        self.manager.transition = SlideTransition(direction="right")
+        self.manager.current = "menu"
 
 
 class Background(Widget):
@@ -155,6 +165,7 @@ class Background(Widget):
 
 
 class Quiz:
+
     def __init__(self):
         """
         英単語をファイルから読み込む
@@ -167,14 +178,7 @@ class Quiz:
         for p in self.raw_problems:
             x = p.split(",")
             self.problems.append(x)
-        
-        self.init_game_stat()
 
-    def init_game_stat(self):
-        """
-        ゲーム内のステータスを初期化する
-        """
-        self.speed = 0.5
 
     def random_pick_problems(self, required: int):
         """
