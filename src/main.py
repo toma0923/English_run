@@ -146,6 +146,8 @@ class MainLayout(Screen):
             self.score += self.speed / 20
 
     def on_press_menu(self):
+        self.quiz.save_high_score(int(self.score))
+
         self.score = 0
         self.limit_timer = 60
 
@@ -167,12 +169,17 @@ class Background(Widget):
 class Quiz:
 
     def __init__(self):
-        """
-        英単語をファイルから読み込む
-        """
-        with open("words.txt", "r") as f:
+        # 英単語をファイルから読み込む
+        with open("db/words.txt", "r") as f:
             self.raw_problems = f.readlines()
             self.raw_problems = [x.strip() for x in self.raw_problems]
+
+        # ハイスコア用ファイルがなければ新規作成する
+        try:
+            with open("db/high_score.txt", "x+") as f:
+                f.write("0\n")
+        except FileExistsError:
+            pass
 
         self.problems = []
         for p in self.raw_problems:
@@ -203,6 +210,17 @@ class Quiz:
             return True
         else:
             return False
+        
+    def save_high_score(self, score):
+        """
+        ハイスコアかどうかを判断して保存する
+        """
+        with open("db/high_score.txt", "r") as f:
+            high_score = int(f.read())
+
+        if score > high_score:
+            with open("db/high_score.txt", "w") as f:
+                f.write(str(score))
 
 
 class App(App):
