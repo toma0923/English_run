@@ -49,7 +49,9 @@ class ForCheckScreen(Screen):
             self.scroll.add_widget(japanese_label)
 
     def on_press_start(self):
-        self.manager.get_screen("main").switch_shown_problem()
+        main = self.manager.get_screen("main")
+        main.bind_keyboard()
+        main.switch_shown_problem()
 
         self.manager.transition = SlideTransition(direction="left")
         self.manager.current = "main"   
@@ -76,14 +78,15 @@ class MainLayout(Screen):
 
     def __init__(self, **kwargs):
         super(MainLayout, self).__init__(**kwargs)
-        self._keyboard = Window.request_keyboard(
-            self._keyboard_closed, self, 'text')
-        self._keyboard.bind(on_key_down=self._on_keyboard_down)
-
         Clock.schedule_interval(self.update, 1.0 / 60.0)
 
         self.quiz = Quiz()
         self.input_text = ""
+    
+    def bind_keyboard(self):
+        self._keyboard = Window.request_keyboard(
+            self._keyboard_closed, self, 'text')
+        self._keyboard.bind(on_key_down=self._on_keyboard_down)
 
     def _keyboard_closed(self):
         print('My keyboard have been closed!')
@@ -107,7 +110,7 @@ class MainLayout(Screen):
             # 不正解ならスピードダウン
             else:
                 self.speed *= 0.8
-
+    
         elif text != None:
             # 文字数制限以下なら文字を追加
             if len(self.input_text) < self.len_current_problem:
@@ -143,7 +146,7 @@ class MainLayout(Screen):
 
         if self.manager.current == "main":
             self.limit_timer -= 1 / 80
-            self.score += self.speed / 20
+            self.score += self.speed / 20 * (len(self.quiz.raw_random_problems) / 10)
 
     def on_press_menu(self):
         self.quiz.save_high_score(int(self.score))
@@ -191,7 +194,9 @@ class Quiz:
         """
         問題となる英単語をランダムで複数ピックアップする
         """
-        self.random_problems = random.sample(self.problems, required)
+        self.raw_random_problems = random.sample(self.problems, required)
+        self.random_problems = self.raw_random_problems[:]
+        random.shuffle(self.random_problems)
         print(self.random_problems)
         return self.random_problems
 
@@ -200,6 +205,9 @@ class Quiz:
         問題を切り替える
         """
         self.current = self.random_problems.pop(0)
+        # 問題が最後までいったとき
+        if len(self.random_problems) == 0:
+            self.random_problems = self.raw_random_problems[:]
 
     def check_input(self, input):
         """
@@ -216,7 +224,8 @@ class Quiz:
         ハイスコアかどうかを判断して保存する
         """
         with open("db/high_score.txt", "r") as f:
-            high_score = int(f.read())
+            high_score = f.read()
+            high_score = int(high_score) if high_score.isdecimal() else 0
 
         if score > high_score:
             with open("db/high_score.txt", "w") as f:
