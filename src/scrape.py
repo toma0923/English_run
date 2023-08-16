@@ -36,7 +36,7 @@ def save_problems():
 def main():
     save_problems()
 
-    with open("words.txt", "r") as f:
+    with open("db/words.txt", "r") as f:
         problems = f.readlines()
         problems = [x.strip() for x in problems]
         # print(problems)
