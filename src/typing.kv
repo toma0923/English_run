@@ -5,6 +5,7 @@ ScreenManagement:
     MenuScreen:
     ForCheckScreen:
     MainLayout:
+    ResultScreen:
 
 
 <MenuScreen>:
@@ -61,6 +62,26 @@ ScreenManagement:
                 height: self.minimum_height
                 spacing: 1, 20
                 padding: 30
+
+
+<ResultScreen>:
+    name: "result"
+    canvas.before:
+        Color:
+            rgba: 0.0, 0.1, 0.2, 1
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    Label:
+        font_size: 40
+        text: "スコア: " + str(root.score)
+        pos_hint: {"center_x": 0.5, "center_y": 0.7}
+    Label:
+        font_size: 40
+        text: "ハイスコア: " + str(root.high_score)
+        pos_hint: {"center_x": 0.5, "center_y": 0.6}
+
 
 <ScrollLabel>:
     canvas.before:

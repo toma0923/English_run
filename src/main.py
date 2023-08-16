@@ -57,6 +57,11 @@ class ForCheckScreen(Screen):
         self.manager.current = "main"   
 
 
+class ResultScreen(Screen):
+    score = NumericProperty(0)
+    high_score = NumericProperty(0)
+
+
 class ScrollLabel(Label):
     bg_color = (245/255, 239/255, 61/255, 1)
     color = (0, 0, 0, 1)
@@ -70,9 +75,9 @@ class MainLayout(Screen):
     メインレイアウト
     キーボードからの入力を受け取る
     """
-
     shown_text = StringProperty("")
-    limit_timer = NumericProperty(60)
+    time_limit = 180
+    limit_timer = NumericProperty(time_limit)
     score = NumericProperty(0)
     speed = NumericProperty(0.5)
 
@@ -148,14 +153,26 @@ class MainLayout(Screen):
             self.limit_timer -= 1 / 80
             self.score += self.speed / 20 * (len(self.quiz.raw_random_problems) / 10)
 
+            if self.limit_timer < 0:
+                self.on_time_up()
+
     def on_press_menu(self):
         self.quiz.save_high_score(int(self.score))
 
         self.score = 0
-        self.limit_timer = 60
+        self.limit_timer = self.time_limit
 
         self.manager.transition = SlideTransition(direction="right")
         self.manager.current = "menu"
+
+    def on_time_up(self):
+        self.quiz.save_high_score(self.score)
+        result = self.manager.get_screen("result")
+        result.score = int(self.score)
+        result.high_score = self.quiz.high_score
+
+        self.manager.transition = SlideTransition(direction="left")
+        self.manager.current = "result"
 
 
 class Background(Widget):
@@ -224,12 +241,12 @@ class Quiz:
         ハイスコアかどうかを判断して保存する
         """
         with open("db/high_score.txt", "r") as f:
-            high_score = f.read()
-            high_score = int(high_score) if high_score.isdecimal() else 0
+            self.high_score = f.read()
+            self.high_score = int(self.high_score) if self.high_score.isdecimal() else 0
 
-        if score > high_score:
+        if score > self.high_score:
             with open("db/high_score.txt", "w") as f:
-                f.write(str(score))
+                f.write(str(int(score)))
 
 
 class App(App):
