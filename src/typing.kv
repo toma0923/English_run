@@ -81,6 +81,13 @@ ScreenManagement:
         font_size: 40
         text: "ハイスコア: " + str(root.high_score)
         pos_hint: {"center_x": 0.5, "center_y": 0.6}
+    
+    Button:
+        text: "リトライ"
+        size_hint: 0.4, 0.15
+        pos_hint: {"center_x": 0.5, "center_y": 0.45}
+        on_release:
+            root.on_retry()
 
 
 <ScrollLabel>:

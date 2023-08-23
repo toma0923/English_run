@@ -23,14 +23,24 @@ class MenuScreen(Screen):
     question_nums = 30
 
     def on_press_start(self):
-        # 指定された出題単語数に応じて問題をピックアップする
+        self.pick_problems()
+        self.prep_check_screen()
+
+    def pick_problems(self):
+        """
+        指定された出題単語数に応じて問題をピックアップするために、random_pick_problems()を呼び出す
+        """
         if self.input.text != "":
             self.question_nums = int(self.input.text)
         main_screen = self.manager.get_screen("main")
-        problems = main_screen.quiz.random_pick_problems(self.question_nums)
-        
+        self.problems = main_screen.quiz.random_pick_problems(self.question_nums)
+
+    def prep_check_screen(self):
+        """
+        単語確認用のスクリーンを用意する
+        """
         check_screen = self.manager.get_screen("check")
-        check_screen.show_all_problems(problems)
+        check_screen.show_all_problems(self.problems)
 
         self.manager.transition = SlideTransition(direction="left")
         self.manager.current = "check"
@@ -51,7 +61,7 @@ class ForCheckScreen(Screen):
     def on_press_start(self):
         main = self.manager.get_screen("main")
         main.bind_keyboard()
-        main.switch_shown_problem()
+        main.on_start()
 
         self.manager.transition = SlideTransition(direction="left")
         self.manager.current = "main"   
@@ -60,6 +70,10 @@ class ForCheckScreen(Screen):
 class ResultScreen(Screen):
     score = NumericProperty(0)
     high_score = NumericProperty(0)
+
+    def on_retry(self):
+        menu = self.manager.get_screen("menu")
+        menu.prep_check_screen()
 
 
 class ScrollLabel(Label):
@@ -76,7 +90,7 @@ class MainLayout(Screen):
     キーボードからの入力を受け取る
     """
     shown_text = StringProperty("")
-    time_limit = 180
+    time_limit = 60
     limit_timer = NumericProperty(time_limit)
     score = NumericProperty(0)
     speed = NumericProperty(0.5)
@@ -125,6 +139,11 @@ class MainLayout(Screen):
         # print(f" - text is {text}")
         # print(' - modifiers are %r' % modifiers)
 
+    def on_start(self):
+        self.score = 0
+        self.limit_timer = self.time_limit
+        self.switch_shown_problem()
+
     def switch_shown_problem(self):
         """
         表示されている問題文を次に切り替える
@@ -158,9 +177,6 @@ class MainLayout(Screen):
 
     def on_press_menu(self):
         self.quiz.save_high_score(int(self.score))
-
-        self.score = 0
-        self.limit_timer = self.time_limit
 
         self.manager.transition = SlideTransition(direction="right")
         self.manager.current = "menu"
