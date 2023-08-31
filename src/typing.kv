@@ -3,6 +3,7 @@
 
 ScreenManagement:
     MenuScreen:
+    SelectScreen:
     ForCheckScreen:
     MainLayout:
     ResultScreen:
@@ -10,7 +11,6 @@ ScreenManagement:
 
 <MenuScreen>:
     name: "menu"
-    input: input_box
     canvas.before:
         Color:
             rgba: 0.0, 0.1, 0.2, 1
@@ -18,21 +18,40 @@ ScreenManagement:
             size: self.size
             pos: self.pos
 
-    TextInput:
-        id: input_box
-        hint_text: "英単語の出題数を入力してください。(デフォルトは30問)"
-        input_type: "number"
-        input_filter: "int"
-        halign: "center"
-        size_hint: 0.3, 0.07
-        pos_hint: {"center_x": 0.5, "center_y": 0.6}
     Button:
         font_size: 30
-        text: "start"
+        text: "選ぶ"
         size_hint: 0.4, 0.15
-        pos_hint: {"center_x": 0.5, "center_y": 0.4}
+        pos_hint: {"center_x": 0.5, "center_y": 0.5}
         on_release:
-            root.on_press_start()
+            root.on_press_select()
+
+
+<SelectScreen>:
+    name: "select"
+    stages: stages
+    ScrollView:
+        GridLayout:
+            id: stages
+            cols: 1
+            size_hint_y: None
+            row_default_height: 100
+            height: self.minimum_height
+            padding: 30
+            # Button:
+            #     text: "a"
+            # Button:
+            #     text: "a"
+            # Button:
+            #     text: "a"
+            # Button:
+            #     text: "a"
+            # Button:
+            #     text: "a"
+            # Button:
+            #     text: "a"
+            # Button:
+            #     text: "a"
 
 
 <ForCheckScreen>:
@@ -48,7 +67,12 @@ ScreenManagement:
     BoxLayout:
         orientation: "vertical"
         Button:
-            text: "start"
+            text: "戻る"
+            on_release:
+                root.manager.transition.direction = "right"
+                root.manager.current = "select"
+        Button:
+            text: "スタート"
             on_release:
                 root.on_press_start()
             
