@@ -6,6 +6,7 @@ from kivy.core.image import Image
 from kivy.core.window import Window
 from kivy.clock import Clock
 from kivy.uix.label import Label
+from kivy.uix.button import Button
 from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition
 from kivy.graphics import Color, Rectangle
 from kivy.properties import StringProperty, ObjectProperty, NumericProperty
@@ -19,21 +20,39 @@ class MenuScreen(Screen):
     """
     メニュー画面
     """
-    # 入力された出題単語数を受け取る変数
-    question_nums = 30
+    def on_press_select(self):
+        self.prep_select_screen()
+        self.manager.transition.direction = "left"
+        self.manager.current = "select"
 
-    def on_press_start(self):
-        self.pick_problems()
+    def prep_select_screen(self):
+        main_screen = self.manager.get_screen("main")
+        select_screen = self.manager.get_screen("select")
+        quiz = main_screen.quiz
+
+        for i in range(quiz.len_stage):
+            aButton = Button(text=f"STAGE {i+1}              ハイスコア: 0",
+                                    on_release=select_screen.on_start)
+            aButton.my_id = i
+            select_screen.stages.add_widget(aButton)
+
+
+class SelectScreen(Screen):
+    """
+    章を選ぶ画面
+    """
+
+    def on_start(self, instance):
+        selected_stage = instance.my_id
+        self.pick_problems(selected_stage)
         self.prep_check_screen()
 
-    def pick_problems(self):
+    def pick_problems(self, selected_stage):
         """
         指定された出題単語数に応じて問題をピックアップするために、random_pick_problems()を呼び出す
         """
-        if self.input.text != "":
-            self.question_nums = int(self.input.text)
         main_screen = self.manager.get_screen("main")
-        self.problems = main_screen.quiz.random_pick_problems(self.question_nums)
+        self.problems = main_screen.quiz.random_pick_problems(selected_stage)
 
     def prep_check_screen(self):
         """
@@ -170,7 +189,7 @@ class MainLayout(Screen):
 
         if self.manager.current == "main":
             self.limit_timer -= 1 / 80
-            self.score += self.speed / 20 * (len(self.quiz.raw_random_problems) / 10)
+            self.score += self.speed / 20
 
             if self.limit_timer < 0:
                 self.on_time_up()
@@ -218,20 +237,24 @@ class Quiz:
             pass
 
         self.problems = []
+        N = 30  # 一章ごとの単語数
         for p in self.raw_problems:
             x = p.split(",")
             self.problems.append(x)
+        # 問題をそれぞれの章ごとに分割する
+        self.problems = [self.problems[i: i+N] for i in range(0, len(self.problems), N)]
+        self.len_stage = len(self.problems)
 
 
-    def random_pick_problems(self, required: int):
+    def random_pick_problems(self, stage: int):
         """
         問題となる英単語をランダムで複数ピックアップする
         """
-        self.raw_random_problems = random.sample(self.problems, required)
+        self.raw_random_problems = self.problems[stage][:]
         self.random_problems = self.raw_random_problems[:]
         random.shuffle(self.random_problems)
         print(self.random_problems)
-        return self.random_problems
+        return self.problems[stage][:]
 
     def next_problem(self):
         """
