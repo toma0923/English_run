@@ -38,20 +38,6 @@ ScreenManagement:
             row_default_height: 100
             height: self.minimum_height
             padding: 30
-            # Button:
-            #     text: "a"
-            # Button:
-            #     text: "a"
-            # Button:
-            #     text: "a"
-            # Button:
-            #     text: "a"
-            # Button:
-            #     text: "a"
-            # Button:
-            #     text: "a"
-            # Button:
-            #     text: "a"
 
 
 <ForCheckScreen>:
@@ -156,7 +142,9 @@ ScreenManagement:
                     size_hint_y: 2
                     font_size: 40
                 Button:
+                    id: input_field
                     text: root.shown_text
+                    color: root.shown_text_color
                     font_size: 30
 
         FloatLayout:

@@ -1,2 +1,2 @@
-for i in range(4):
-    print(i)
+a = ["a", "b", "c"]
+print(",".join(a))

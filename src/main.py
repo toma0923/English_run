@@ -7,7 +7,7 @@ from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition
 from kivy.graphics import Color, Rectangle
-from kivy.properties import StringProperty, ObjectProperty, NumericProperty
+from kivy.properties import StringProperty, ObjectProperty, NumericProperty, ListProperty
 from quiz import Quiz
 
 
@@ -19,6 +19,7 @@ class MenuScreen(Screen):
     """
     メニュー画面
     """
+
     def on_press_select(self):
         self.prep_select_screen()
         self.manager.transition.direction = "left"
@@ -28,9 +29,10 @@ class MenuScreen(Screen):
         main_screen = self.manager.get_screen("main")
         select_screen = self.manager.get_screen("select")
         quiz = main_screen.quiz
+        high_score_list = quiz.read_high_score()
 
         for i in range(quiz.len_stage):
-            aButton = Button(text=f"STAGE {i+1}              ハイスコア: 0",
+            aButton = Button(text=f"STAGE {i+1}              ハイスコア: {high_score_list[i]}",
                                     on_release=select_screen.on_start)
             aButton.my_id = i
             select_screen.stages.add_widget(aButton)
@@ -110,6 +112,7 @@ class MainLayout(Screen):
     shown_text = StringProperty("")
     time_limit = 60
     limit_timer = NumericProperty(time_limit)
+    shown_text_color = ListProperty([1, 1, 1, 1])
     score = NumericProperty(0)
     speed = NumericProperty(0.5)
 
@@ -119,6 +122,7 @@ class MainLayout(Screen):
 
         self.quiz = Quiz()
         self.input_text = ""
+        self.mistake_flag = False
     
     def bind_keyboard(self):
         self._keyboard = Window.request_keyboard(
@@ -140,12 +144,16 @@ class MainLayout(Screen):
             self.change_shown_text()
 
         elif keycode[0] == 13:
+            if self.mistake_flag:
+                self.switch_shown_problem()
             # Enterが押されたとき、入力が正しければスピードを上げ正解処理に進む
-            if self.quiz.check_input(self.input_text):
+            elif self.quiz.check_input(self.input_text):
                 self.speed *= 1.2
                 self.switch_shown_problem()
             # 不正解ならスピードダウン
             else:
+                self.change_shown_text(self.quiz.correct_answer, reset=True, color=(1, 0, 0, 1))
+                self.mistake_flag = True
                 self.speed *= 0.8
     
         elif text != None:
@@ -171,15 +179,19 @@ class MainLayout(Screen):
         self.len_current_problem = len(self.quiz.current[0]) 
         # 問題文(日本語)
         self.ids.question.text = self.quiz.current[1]
-        # アンダーバーと入力された文字を初期化
-        self.underline = "_" * self.len_current_problem
-        self.input_text = ""
 
+        self.change_shown_text(reset=True)
         self.change_shown_text()
 
-    def change_shown_text(self, add_text=""):
+    def change_shown_text(self, add_text="", reset=False, color=[1, 1, 1, 1]):
+        if reset:
+            # アンダーバーと入力された文字を初期化
+            self.underline = "_" * self.len_current_problem
+            self.input_text = ""
+
         self.input_text += add_text
         self.shown_text = " ".join(self.input_text + self.underline[len(self.input_text):])
+        self.shown_text_color = color
 
     def update(self, dt):
         self.ids.bg1.move(self.speed)
