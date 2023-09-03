@@ -1,4 +1,5 @@
 import requests
+import random
 from bs4 import BeautifulSoup
 
 
@@ -28,7 +29,8 @@ def save_problems():
             continue
         splited_list.append(a)
 
-    with open("words.txt", "w") as f:
+    random.shuffle(splited_list)
+    with open("db/words.txt", "w") as f:
         for value in splited_list:
             f.write(f"{value[1]}, {value[2]}\n")
 
